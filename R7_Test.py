@@ -1,0 +1,28 @@
+import pytest
+from library_service import get_patron_status_report
+
+def test_status_returns_dict_type():
+    report = get_patron_status_report("700001")
+    assert isinstance(report, dict)
+    assert report == report 
+
+
+def test_status_report_has_expected_keys():
+    report = get_patron_status_report("700002")
+    keys = set(report.keys())
+    assert "patron_id" in keys
+    assert "current_with_due_dates" in keys
+    assert "overdue_books" in keys
+    assert "total_currently_borrowed" in keys
+    assert "total_overdue" in keys
+
+def test_status_current_with_due_dates_is_list_if_present():
+    report = get_patron_status_report("700003")
+    if "current_with_due_dates" in report:
+        assert isinstance(report["current_with_due_dates"], list)
+
+def test_get_empty_patron_id():
+    result = get_patron_status_report(None)
+    assert isinstance(result, dict)
+    assert 'empty' in result or 'message' in result
+    assert "6 digits" in str(result.get('empty', result.get('message', '')))
