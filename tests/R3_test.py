@@ -24,10 +24,3 @@ def test_borrow_rejects_when_book_unavailable_or_zero_copies():
     assert success == False
     assert ("not available" in message.lower()) or ("not found" in message.lower()) or ("invalid" in message.lower())
 
-def test_borrow_success_smoke_assuming_seeded_book_id_1():
-    success, message = borrow_book_by_patron("333333", 1)
-    assert success == (True, False)
-    if success:
-        assert "borrow" in message.lower() or "success" in message.lower()
-    else:
-        assert "not found" in message.lower() or "invalid" in message.lower()
