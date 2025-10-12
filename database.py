@@ -10,25 +10,17 @@ from typing import Dict, List, Optional
 # Database configuration
 DATABASE = "library.db"
 
-# 只初始化一次，避免在 pytest / CI 中重复建表与重复灌数据
+
 _DB_BOOTSTRAPPED = False
 
 
 def _connect_raw() -> sqlite3.Connection:
-    """
-    打开一个裸连接（不依赖 get_db_connection），用于引导初始化，避免递归调用。
-    """
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
     return conn
 
 
 def ensure_schema(conn: sqlite3.Connection) -> None:
-    """
-    确保数据库表存在（幂等）。
-    books 表字段保持与库层调用一致：total_copies / available_copies。
-    borrow_records 表用于借阅记录，return_date 可为空。
-    """
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS books (
@@ -60,10 +52,6 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
 
 
 def init_database() -> None:
-    """
-    显式初始化数据库表（保留原接口）。
-    该函数内部自己创建与关闭连接，便于在 CI 或脚本里单独调用。
-    """
     conn = _connect_raw()
     try:
         ensure_schema(conn)
@@ -72,10 +60,6 @@ def init_database() -> None:
 
 
 def add_sample_data() -> None:
-    """
-    若库为空则灌入样例数据（幂等）。
-    注意：仅在 books 为空时插入，避免多次运行造成重复数据。
-    """
     conn = _connect_raw()
     try:
         count_row = conn.execute("SELECT COUNT(*) AS count FROM books").fetchone()
@@ -97,7 +81,6 @@ def add_sample_data() -> None:
                     (title, author, isbn, copies, copies),
                 )
 
-            # 让《1984》变为不可借：插入一条借阅记录并把可借数改为 0
             conn.execute(
                 """
                 INSERT INTO borrow_records (patron_id, book_id, borrow_date, due_date)
@@ -105,7 +88,7 @@ def add_sample_data() -> None:
                 """,
                 (
                     "123456",
-                    3,  # 假设第三本书自增 id = 3（在空库插入三本时成立）
+                    3,  
                     (datetime.now() - timedelta(days=5)).isoformat(),
                     (datetime.now() + timedelta(days=9)).isoformat(),
                 ),
@@ -118,14 +101,10 @@ def add_sample_data() -> None:
 
 
 def _bootstrap_db_once() -> None:
-    """
-    首次调用时：建表 + 灌样例数据（幂等）。
-    """
     global _DB_BOOTSTRAPPED
     if _DB_BOOTSTRAPPED:
         return
 
-    # 使用裸连接避免递归
     conn = _connect_raw()
     try:
         ensure_schema(conn)
@@ -137,10 +116,6 @@ def _bootstrap_db_once() -> None:
 
 
 def get_db_connection() -> sqlite3.Connection:
-    """
-    获取数据库连接；首次调用自动完成引导（建表与必要的样例数据），
-    之后只返回普通连接。调用方负责在使用完毕后关闭连接。
-    """
     _bootstrap_db_once()
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
