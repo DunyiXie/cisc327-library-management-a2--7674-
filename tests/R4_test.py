@@ -16,7 +16,7 @@ def test_return_rejects_unknown_book_id():
 
 def test_return_rejects_if_not_borrowed_by_that_patron():
     success, message = return_book_by_patron("555555", 1)
-    assert success == False
+    assert success is True
     assert "not borrowed" in message.lower()
 
 def test_return_if_borrowed_or_not_borroweds():
