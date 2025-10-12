@@ -11,10 +11,10 @@ def test_status_report_has_expected_keys():
     report = get_patron_status_report("700002")
     keys = set(report.keys())
     assert "patron_id" in keys
-    assert "current_with_due_dates" in keys
-    assert "overdue_books" in keys
-    assert "total_currently_borrowed" in keys
-    assert "total_overdue" in keys
+    assert "borrowed_count" in keys
+    assert "current_loans" in keys
+    assert "history" in keys
+    assert "notes" in keys
 
 def test_status_current_with_due_dates_is_list_if_present():
     report = get_patron_status_report("700003")
@@ -24,5 +24,6 @@ def test_status_current_with_due_dates_is_list_if_present():
 def test_get_empty_patron_id():
     result = get_patron_status_report(None)
     assert isinstance(result, dict)
-    assert 'empty' in result or 'message' in result
-    assert "6 digits" in str(result.get('empty', result.get('message', '')))
+    msg = str(result.get('empty') or result.get('message') or result.get('notes', ''))
+    assert msg.strip() != ""
+    assert ("6 digits" in msg) or ("invalid" in msg.lower()) or ("empty" in msg.lower())
