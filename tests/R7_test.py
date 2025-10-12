@@ -1,4 +1,7 @@
 import pytest
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from library_service import get_patron_status_report
 
 def test_status_returns_dict_type():

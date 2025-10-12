@@ -1,4 +1,7 @@
 import pytest
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from library_service import calculate_late_fee_for_book
 
 def test_fee_for_book_returns_dict_type():

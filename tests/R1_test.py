@@ -1,4 +1,7 @@
 import pytest
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from library_service import add_book_to_catalog
 
 def test_add_book_success_sets_available_and_success_message():
