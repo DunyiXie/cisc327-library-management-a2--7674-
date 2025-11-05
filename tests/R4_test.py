@@ -2,7 +2,7 @@ import pytest
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from library_service import return_book_by_patron
+from services.library_service import return_book_by_patron
 
 def test_return_rejects_invalid_patron_id():
     success, message = return_book_by_patron("12AB34", 1)
