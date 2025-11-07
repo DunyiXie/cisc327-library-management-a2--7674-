@@ -82,3 +82,29 @@ def test_pay_late_fees_fee_info_missing_key(monkeypatch, stub_book_found, gatewa
     assert ok is False
     assert "Unable to calculate late fees" in msg
     assert txn is None
+
+
+def test_add_book_insert_5arg_success(monkeypatch):
+    monkeypatch.setattr("services.library_service.get_book_by_isbn",
+                        lambda isbn: None, raising=True)
+    calls = []
+    def _insert_capture(*args):
+        calls.append(args)
+        return True
+    monkeypatch.setattr("services.library_service.insert_book",_insert_capture, raising=True)
+    ok, msg = ls.add_book_to_catalog("T", "A", "1234567890123", 2)
+    assert ok is True
+    assert "success" in msg.lower()
+    assert len(calls) == 1
+    assert len(calls[0]) == 5
+    assert calls[0][-2:] == (2, 2)
+
+
+def test_add_book_insert_4arg_success(monkeypatch):
+    monkeypatch.setattr("services.library_service.get_book_by_isbn",
+                        lambda isbn: None, raising=True)
+    monkeypatch.setattr("services.library_service.insert_book",
+                        lambda *args: True, raising=True)
+    ok, msg = ls.add_book_to_catalog("T", "A", "1234567890123", 2)
+    assert ok is True
+    assert "success" in msg.lower()

@@ -49,3 +49,4 @@ def test_refund_gateway_exception(gateway_mock):
     gateway_mock.refund_payment.assert_called_once_with("txn_123", 2.00)
     assert ok is False
     assert "Refund processing error" in msg
+
