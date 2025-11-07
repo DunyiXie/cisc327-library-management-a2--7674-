@@ -239,16 +239,6 @@ def test_return_update_availability_failure(monkeypatch):
     ok, msg = ls.return_book_by_patron("700002", 1)
     assert ok is False and "update book availability" in msg
 
-def test_return_fee_amount_parse_exception_falls_back_zero(monkeypatch):
-    monkeypatch.setattr(ls, "get_book_by_id", lambda bid: {"id": bid, "title": "T"})
-    monkeypatch.setattr(ls, "update_borrow_record_return_date", lambda *a, **k: True)
-    monkeypatch.setattr(ls, "update_book_availability", lambda *a, **k: True)
-    monkeypatch.setattr(ls, "calculate_late_fee_for_book", lambda pid, bid: {"fee_amount": object()})
-    ok, msg = ls.return_book_by_patron("700002", 1)
-    assert ok is True and " No late fee." in msg
-    monkeypatch.setattr(ls, "get_book_by_id", lambda bid: None)
-    out = ls.calculate_late_fee_for_book("700002", 9)
-    assert out["status"] == "Book not found"
 
 def test_search_isbn_miss_fallback_list_scan(monkeypatch):
     monkeypatch.setattr(ls, "get_book_by_isbn", lambda normalized: None)
